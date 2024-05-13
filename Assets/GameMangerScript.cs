@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameMangerScript : MonoBehaviour
 {
     public GameObject playerPrefab;
+    public GameObject BoxPrefab;
 
     //配列の作成
     int[,] map;
@@ -18,9 +19,11 @@ public class GameMangerScript : MonoBehaviour
     {
         //mapの生成
         map = new int[,]{
-            { 1, 0, 0, 0, 0 },
             { 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0 }
+            { 0, 3, 1, 3, 0 },
+            { 0, 0, 2, 0, 0 },
+            { 0, 2, 3, 2, 0 },
+            { 0, 0, 0, 0, 0 },
         };
         field = new GameObject
             [
@@ -38,7 +41,13 @@ public class GameMangerScript : MonoBehaviour
                 {
                     field[y, x] = Instantiate(
                         playerPrefab,
-                        new Vector3(x, map.GetLength(0) - 1 - y, 0), Quaternion.identity);
+                        new Vector3(x, map.GetLength(0) - y, 0), Quaternion.identity);
+                }
+                if (map[y, x] == 2)
+                {
+                    field[y, x] = Instantiate(
+                        BoxPrefab,
+                        new Vector3(x, map.GetLength(0) - y, 0), Quaternion.identity);
                 }
                 debugText += map[y, x].ToString() + ",";
             }
@@ -71,6 +80,11 @@ public class GameMangerScript : MonoBehaviour
             Vector2Int playerIndex = GetPlayerIndex();
             MoveNumber(playerIndex, playerIndex + new Vector2Int(1, 0));
         }
+        //もしクリアしていたら
+        if (IsCleard())
+        {
+            Debug.Log("Clear");
+        }
     }
 
     Vector2Int GetPlayerIndex()
@@ -94,6 +108,7 @@ public class GameMangerScript : MonoBehaviour
 
     bool MoveNumber(Vector2Int moveFrom, Vector2Int moveTo)
     {
+
         //二次元配列に対応
         if (moveTo.y < 0 || moveTo.y >= field.GetLength(0)) { return false; }
         if (moveTo.x < 0 || moveTo.x >= field.GetLength(1)) { return false; }
@@ -108,11 +123,48 @@ public class GameMangerScript : MonoBehaviour
             if (!success) { return false; }
         }
         */
+        //Boxのタグを持っていたら再帰処理
+        if (field[moveTo.y, moveTo.x] != null && field[moveTo.y, moveTo.x].tag == "Box")
+        {
+            Vector2Int velocity = moveTo - moveFrom;
+            bool success = MoveNumber(moveTo, moveTo + velocity);
+            if (!success) { return false; }
+        }
         //プレイヤー・箱関わらずの移動処理
         field[moveTo.y, moveTo.x] = field[moveFrom.y, moveFrom.x];
         field[moveFrom.y, moveFrom.x].transform.position =
             new Vector3(moveTo.x, map.GetLength(0) - moveTo.y, 0);
         field[moveFrom.y, moveFrom.x] = null;
+        return true;
+    }
+
+    bool IsCleard()
+    {
+        List<Vector2Int> goals = new List<Vector2Int>();
+
+        for(int y = 0; y < map.GetLength(0); y++)
+        {
+            for (int x = 0; x < map.GetLength(1); x++)
+            {
+                //格納場所か否かを判断
+                if (map[y,x] == 3)
+                {
+                    goals.Add(new Vector2Int(x, y));
+                }
+            }
+        }
+
+        //要素数はgoals.Countで取得
+        for(int i = 0; i < goals.Count; i++)
+        {
+            GameObject f = field[goals[i].y, goals[i].x];
+            if (f == null || f.tag != "Box")
+            {
+                //一つでも箱が無かったら条件未達成
+                return false;
+            }
+        }
+        //条件未達成でなければ条件達成
         return true;
     }
 }
