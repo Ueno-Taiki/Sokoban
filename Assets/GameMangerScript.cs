@@ -109,21 +109,10 @@ public class GameMangerScript : MonoBehaviour
 
     bool MoveNumber(Vector2Int moveFrom, Vector2Int moveTo)
     {
-
         //二次元配列に対応
         if (moveTo.y < 0 || moveTo.y >= field.GetLength(0)) { return false; }
         if (moveTo.x < 0 || moveTo.x >= field.GetLength(1)) { return false; }
-        /*
-        //移動先に2が居たら
-        if (map[moveTo] == 2)
-        {
-            //どの方向へ移動するかを算出
-            int velocity = moveTo - moveFrom;
-            bool success = MoveNumber(2, moveFrom, moveTo + velocity);
-            //もし箱が移動失敗したら、プレイヤーの移動も失敗
-            if (!success) { return false; }
-        }
-        */
+       
         //Boxのタグを持っていたら再帰処理
         if (field[moveTo.y, moveTo.x] != null && field[moveTo.y, moveTo.x].tag == "Box")
         {
@@ -131,10 +120,11 @@ public class GameMangerScript : MonoBehaviour
             bool success = MoveNumber(moveTo, moveTo + velocity);
             if (!success) { return false; }
         }
+
         //プレイヤー・箱関わらずの移動処理
         field[moveTo.y, moveTo.x] = field[moveFrom.y, moveFrom.x];
-        field[moveFrom.y, moveFrom.x].transform.position =
-            new Vector3(moveTo.x, map.GetLength(0) - moveTo.y, 0);
+        Vector3 moveToPosition = new Vector3(moveTo.x, map.GetLength(0) - moveTo.y, 0);
+        field[moveFrom.y, moveFrom.x].GetComponent<Move>().MoveTo(moveToPosition);
         field[moveFrom.y, moveFrom.x] = null;
         return true;
     }
