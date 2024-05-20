@@ -7,6 +7,7 @@ public class GameMangerScript : MonoBehaviour
 {
     public GameObject playerPrefab;
     public GameObject BoxPrefab;
+    public GameObject clearText;
 
     //”z—ñ‚Ìì¬
     int[,] map;
@@ -83,7 +84,7 @@ public class GameMangerScript : MonoBehaviour
         //‚à‚µƒNƒŠƒA‚µ‚Ä‚¢‚½‚ç
         if (IsCleard())
         {
-            Debug.Log("Clear");
+            clearText.SetActive(true);
         }
     }
 
