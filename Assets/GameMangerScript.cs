@@ -18,6 +18,8 @@ public class GameMangerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Screen.SetResolution(1280, 720, false);
+
         //mapÇÃê∂ê¨
         map = new int[,]{
             { 0, 0, 0, 0, 0 },
